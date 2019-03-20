@@ -1,4 +1,4 @@
-# Dockerを使ったCakePHP開発環境の構築方法
+# Dockerを使ったCakePHP開発環境の構築方法(laravel mixを添えて)
 
 ## ディレクトリ構造
 
@@ -6,7 +6,7 @@
 ```
 workspace_dir
   + project_root
-      + docker
+      + docker ： Dockerファイル一式
           + mysql
           + nginx
           + php
@@ -101,30 +101,9 @@ gitでプロジェクトをダウンロードした場合は下記設定済み�
       ```sh
       Set Folder Permissions ? (Default to Y) [Y,n]? Created `config/app.php` file ...
       ```
-1. Laravel-mix インストール  
-   ※ javascriptの圧縮、scssのコンパイルに使用するのでLaravel-mixをインストールします
-   - 下記コマンドを実行（node.jsでの操作のため、コンテナをnodeで実施する）
-      ```sh
-      $ docker-compose exec node npx create-laravel-mix react --public-dir webroot
-      $ docker-compose exec node yarn install
-      ```
-   - プロジェクトに下記ファイルが作成されます
-      ```
-      cake  
-        + assets  
-            + js  
-            + sass  
-        + node_modules  
-        + package.json
-        + webpack.mix.js
-      ```
-   - node_modulesは重く、git管理したくないため、gitignoreファイルに追記してやります
-      ```sh
-      $ echo "node_modules" >> <project_root>/cake/.gitignore
-      ```
 1. CakePHP初期設定  
   ※今回は.envファイルを設定ファイルとして扱う  
-  .envファイル（git管理しない）に環境ごとの設定を記載できるため、本番/テスト/開発環境の分割がしやすくなる
+  .envファイル（git管理しない）に環境ごとの設定を記載できるため、本番/テスト/開発環境の分割管理がしやすくなる
    1. config/.envの作成
       - config/.env.default をコピーして .env を作成
       - .envの下記項目を編集
@@ -182,10 +161,35 @@ gitでプロジェクトをダウンロードした場合は下記設定済み�
                'encoding' => 'utf8mb4',
                'timezone' => env('APP_DEFAULT_TIMEZONE', 'UTC'),
       ```
-    4. ブラウザでスタートページが表示されることを確認する
+    4. .gitignoreの編集
+       - 設定ファイルをapp.confから変更したので、.bitignoreからapp.confをコメントアウト
+          ```sh
+          #/config/app.php
+          ```
+    5. ブラウザでスタートページが表示されることを確認する
        - http://localhost/ でアクセス
        - Databaseの項目が緑色であることを確認する
-
+2. Laravel-mix インストール  
+   ※ javascriptの圧縮、scssのコンパイルに使用するのでLaravel-mixをインストールします
+   - 下記コマンドを実行（node.jsでの操作のため、コンテナをnodeで実施する）
+      ```sh
+      $ docker-compose exec node npx create-laravel-mix react --public-dir webroot
+      $ docker-compose exec node yarn install
+      ```
+   - プロジェクトに下記ファイルが作成されます
+      ```
+      cake  
+        + assets  
+            + js  
+            + sass  
+        + node_modules  
+        + package.json
+        + webpack.mix.js
+      ```
+   - node_modulesは重く、git管理したくないため、gitignoreファイルに追記してやります
+      ```sh
+      $ echo "node_modules" >> <project_root>/cake/.gitignore
+      ```
 ### ３．開発フローなど
 
 1. cakeコマンドの実行
