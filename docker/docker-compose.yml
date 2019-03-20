@@ -1,0 +1,67 @@
+version: '3'
+
+services:
+  # Webサーバー
+  nginx:
+    build:
+      context: ./nginx
+      args:
+        - NGINX_VERSION=${NGINX_VERSION}
+        - APP_CONTAINER=${APP_CONTAINER}
+        - USER_ID=${UID}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ${APP_ROOT}:${APP_CONTAINER}:cached
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ${DATA_PATH_HOST}/${COMPOSE_PROJECT_NAME}/log/nginx:/var/log/nginx:cached
+    depends_on:
+      - php
+
+  # PHP-FPMコンテナ
+  php:
+    build:
+      context: ./php
+      args:
+        - PHP_VERSION=${PHP_VERSION}
+        - APP_CONTAINER=${APP_CONTAINER}
+        - USER_ID=${UID}
+        - GROUP_ID=${GROUPS}
+    volumes:
+      - ${APP_ROOT}:${APP_CONTAINER}:cached
+      - ./php/conf.d/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+      - ./php/conf.d/upload.ini:/usr/local/etc/php/conf.d/upload.ini
+    depends_on:
+      - mysql
+    links:
+      - mysql
+
+  # mysql
+  mysql:
+    image: mysql:${MYSQL_VERSION}
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - TZ=${MYSQL_TIMEZONE}
+    volumes:
+      - ${DATA_PATH_HOST}/${COMPOSE_PROJECT_NAME}/mysql:/var/lib/mysql:cached
+      - ./mysql/conf.d:/etc/mysql/conf.d
+    ports:
+      - "${MYSQL_PORT}:3306"
+
+  # node
+  node:
+    build:
+      context: ./node
+      args:
+        - NODE_VERSION=${NODE_VERSION}
+        - APP_CONTAINER=${APP_CONTAINER}
+        - USER_ID=${UID}
+        - GROUP_ID=${GROUPS}
+    volumes:
+      - ${APP_ROOT}:${APP_CONTAINER}:cached
+    stdin_open: true
+    tty: true
