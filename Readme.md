@@ -33,7 +33,7 @@ workspace_dir
 - Gitのインストール
   - GitBash
   - ※改行コードをCRLFに自動変換しない設定にする
-    - 気にせずインストールした場合は、GitBashで下記を実行
+    - 気にせずインストールした場合は、GitBash上で下記コマンドを実行
       ```sh
       $ git config --global core.autocrlf input
       ```
@@ -205,3 +205,5 @@ gitでプロジェクトをダウンロードした場合は下記設定済み�
     $ docker-compose exec node yarn run watch
     ```
     
+### ４．Xdebugの利用
+1. 
