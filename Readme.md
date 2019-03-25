@@ -55,7 +55,7 @@ workspace_dir
         - https://docs.docker.com/compose/install/
 
 ## 環境構築
-### １．コンテナの起動 ～ ブラウザでの閲覧
+### １．プロジェクトのダウンロード ～ ブラウザでの閲覧
 
 1. プロジェクトのダウンロード
    - git でダウンロードする
@@ -64,8 +64,8 @@ workspace_dir
       <path to workspace_dir>
       $ git clone [git URL] <project_root>
       ```
-2. 設定ファイルの修正
-   - env.sample を .envにコピーし、環境に合わせて修正する
+2. docker設定ファイルの修正
+   - dockerディレクトリの env.sample を .envにコピーし、環境に合わせて修正する
       ```sh
       $ cd <project_root>/docker
       $ cp env.sample .env
@@ -89,11 +89,43 @@ workspace_dir
     ※2回目以降は下記コマンドで起動可能
     $ docker-compose up -d
     ```
+4. CakePHPの初期設定
+   1. composerで利用するモジュールをインストールする
+      ```sh
+      $ docker-compose exec php composer install
+      
+      インストール時に下記のように聞かれるので、Enterを押したらインストールが完了
+      Set Folder Permissions ? (Default to Y) [Y,n]? 
+      ```
+   2. config/.envの作成
+      - config/.env.sample をコピーして .env を作成する
+   3. Laravel-mix の設定  
+      ※ javascriptの圧縮、scssのコンパイルに使用します
+      ```sh
+      $ docker-compose exec node yarn install
+      ```
+5. ブラウザでhttp://localhost/でアクセスし、エラーが出なければ完了
 
-### ２．CakePHPのインストール ＆ 初期設定
-gitでプロジェクトをダウンロードした場合は下記設定済みのため、本章は飛ばしてください
-1. CakePHPプロジェクトのインストール
-    - <project_root>/cake/ ディレクトリへインストールする場合の書き方
+
+### ２．開発フローなど
+
+1. cakeコマンドの実行
+    ```sh
+    $ docker-compose exec php bin/cake .....
+    ```
+1. sassなどのコンパイル
+    ```sh
+    $ docker-compose exec node yarn run dev
+
+    ※ 常時監視させる場合は、下記を実行しておく
+    $ docker-compose exec node yarn run watch
+    ```
+
+### ３．CakePHPのインストール ＆ 初期設定について
+    ※ gitでプロジェクトをダウンロードした場合は下記設定済みのため、本章は飛ばしてください  
+    Docker起動済みの状態で、新規プロジェクトを作成する際のTipsです
+1. CakePHPプロジェクトのインストール  
+    - <project_root>/cake/ ディレクトリへインストールする場合のコマンド
       ```sh
       $ docker-compose exec php composer create-project --prefer-dist cakephp/app ../cake
       ```
@@ -101,11 +133,10 @@ gitでプロジェクトをダウンロードした場合は下記設定済み�
       ```sh
       Set Folder Permissions ? (Default to Y) [Y,n]? Created `config/app.php` file ...
       ```
-1. CakePHP初期設定  
-  ※今回は.envファイルを設定ファイルとして扱う  
-  .envファイル（git管理しない）に環境ごとの設定を記載できるため、本番/テスト/開発環境の分割管理がしやすくなる
+2. CakePHP初期設定  
+  .envファイル（git管理しない）を設定ファイルとして扱うことで環境ごとの設定を記載できるため、本番/テスト/開発環境の分割管理がしやすくなる
    1. config/.envの作成
-      - config/.env.default をコピーして .env を作成
+      - config/.env.default をコピーして .env を作成する
       - .envの下記項目を編集
         ```php
         export APP_NAME="__APP_NAME__"  // -> アプリ名を設定（例としてTEST_APPに設定）
@@ -170,6 +201,7 @@ gitでプロジェクトをダウンロードした場合は下記設定済み�
     5. ブラウザでスタートページが表示されることを確認する
        - http://localhost/ でアクセス
        - Databaseの項目が緑色であることを確認する
+
 2. Laravel-mix インストール  
    ※ javascriptの圧縮、scssのコンパイルに使用するのでLaravel-mixをインストールします
    - 下記コマンドを実行（node.jsでの操作のため、コンテナをnodeで実施する）
@@ -191,19 +223,4 @@ gitでプロジェクトをダウンロードした場合は下記設定済み�
       ```sh
       $ echo "node_modules" >> <project_root>/cake/.gitignore
       ```
-### ３．開発フローなど
 
-1. cakeコマンドの実行
-    ```sh
-    $ docker-compose exec php bin/cake .....
-    ```
-1. sassなどのコンパイル
-    ```sh
-    $ docker-compose exec node yarn run dev
-
-    ※ 常時監視させる場合は、下記を実行しておく
-    $ docker-compose exec node yarn run watch
-    ```
-    
-### ４．Xdebugの利用
-1. 
