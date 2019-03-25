@@ -15,7 +15,6 @@ services:
     volumes:
       - ${APP_ROOT}:${APP_CONTAINER}:cached
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ${DATA_PATH_HOST}/${COMPOSE_PROJECT_NAME}/log/nginx:/var/log/nginx:cached
     depends_on:
       - php
 
@@ -47,7 +46,7 @@ services:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - TZ=${MYSQL_TIMEZONE}
     volumes:
-      - ${DATA_PATH_HOST}/${COMPOSE_PROJECT_NAME}/mysql:/var/lib/mysql:cached
+      - mysql_data:/var/lib/mysql
       - ./mysql/conf.d:/etc/mysql/conf.d
     ports:
       - "${MYSQL_PORT}:3306"
@@ -65,3 +64,7 @@ services:
       - ${APP_ROOT}:${APP_CONTAINER}:cached
     stdin_open: true
     tty: true
+
+volumes:
+  mysql_data:
+    driver: local
